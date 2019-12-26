@@ -1,0 +1,21 @@
+{
+  "name": "untitledjs",
+  "version": "1.0.0",
+  "description": "An Online Multiplayer Battle Game",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Joshua Chima",
+  "license": "ISC",
+  "dependencies": {
+    "bufferutil": "^4.0.1",
+    "express": "^4.17.1",
+    "node-uuid": "^1.4.8",
+    "p5": "^0.10.2",
+    "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.0",
+    "utf-8-validate": "^5.0.2",
+    "ws": "^7.2.1"
+  }
+}
