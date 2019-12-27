@@ -16,7 +16,6 @@
   "author": "Joshua Chima",
   "license": "MIT",
   "dependencies": {
-    "bufferutil": "^4.0.1",
     "express": "^4.17.1",
     "node-uuid": "^1.4.8",
     "p5": "^0.10.2",
