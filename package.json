@@ -2,12 +2,16 @@
   "name": "untitledjs",
   "version": "1.0.0",
   "description": "An Online Multiplayer Battle Game",
-  "main": "app.js",
+  "main": "serverm1.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoshChima/UNTITLEDJS.git"
+  },
   "author": "Joshua Chima",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "bufferutil": "^4.0.1",
     "express": "^4.17.1",
