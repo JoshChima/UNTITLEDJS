@@ -2,6 +2,9 @@
   "name": "untitledjs",
   "version": "1.0.0",
   "description": "An Online Multiplayer Battle Game",
+  "engines": {
+    "node": "v10.16.0"
+  },
   "main": "serverm1.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
