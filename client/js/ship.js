@@ -4,9 +4,11 @@ function between(x, min, max) {
 
 function listTransform(lsr) {
     var data = {
-        id: lsr.shipID,
+        lid: lsr.uniqueID,
+        sid: lsr.shipID,
         x: lsr.pos.x,
-        y: lsr.pos.y
+        y: lsr.pos.y,
+        active: lsr.active
     };
     return data
 }
@@ -25,6 +27,9 @@ function Ship(id, x, y) {
     this.getLaserData = function () {
         const arr = this.lasers.map(lsr => listTransform(lsr))
         return arr
+    }
+    this.getOneLaserData = function (index) {
+        return listTransform(this.lasers[index])
     }
 
     this.reset = function () {

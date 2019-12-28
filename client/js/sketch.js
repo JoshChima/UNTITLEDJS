@@ -27,13 +27,15 @@ function setup() {
         x: ship.pos.x,
         y: ship.pos.y,
         h: ship.heading,
+        isalive: ship.isalive,
         lasers: ship.getLaserData()
     };
     socket.emit('start', JSON.stringify(data));
 
     socket.on('heartbeat', function (d) {
         let data = JSON.parse(d);
-        //console.log(data);
+        console.log(socket.id)
+        console.log(data);
         players = data;
     });
 };
@@ -46,13 +48,13 @@ function draw() {
     for (let i = 0; i < players.length; i++) {
         let d = int(dist(ship.pos.x, ship.pos.y, players[i].x, players[i].y));
 
-        if (players[i].id !== socket.id && d < Math.max(width, height)) {
+        if (players[i].sid !== socket.id && d < Math.max(width, height)) {
             push()
             fill(255, 0, 0)
             textAlign(CENTER);
             textSize(12);
             // text(socket.id, players[i].x, players[i].y - scl*3)
-            text(players[i].id, players[i].x, players[i].y + scl * 3)
+            text(players[i].sid, players[i].x, players[i].y + scl * 3)
             translate(players[i].x, players[i].y);
             rotate(players[i].heading + PI / 2)
             triangle(-scl, scl, scl, scl, 0, -scl);
@@ -67,46 +69,55 @@ function draw() {
             rotate(atan2(players[i].y - ship.pos.y, players[i].x - ship.pos.x));
             text(nfc(d, 1), 0, -5);
             pop()
+
+            for (let l = 0; l < players[i].lasers.length; l++) {
+                let lsr = players[i].lasers[l];
+                let ld = int(dist(ship.pos.x, ship.pos.y, lsr.x, lsr.y));
+                if (ld < Math.max(width, height)) {
+                    push()
+                    fill(255, 0, 0)
+                    strokeWeight(4);
+                    point(lsr.x, lsr.y);
+                    pop()
+
+                    push()
+                    //distance between
+                    line(ship.pos.x, ship.pos.y, lsr.x, lsr.y)
+                    ellipse(ship.pos.x, ship.pos.y, 5, 5);
+                    ellipse(lsr.x, lsr.y, 5, 5);
+                    translate((ship.pos.x + lsr.x) / 2, (ship.pos.y + lsr.y) / 2);
+                    rotate(atan2(lsr.y - ship.pos.y, lsr.x - ship.pos.x));
+                    text(nfc(ld, 1), 0, -5);
+                    pop()
+                }
+                if (ld < scl) {
+                    ship.reset()
+                }
+
+
+            }
         }
 
-        for (let l = 0; l < players[i].lasers.length; l++) {
-            let lsr = players[i].lasers[l];
-            let d = int(dist(ship.pos.x, ship.pos.y, lsr.x, lsr.y));
-            if (d < Math.max(width, height)) {
-                push()
-                fill(255, 0, 0)
-                strokeWeight(4);
-                point(lsr.x, lsr.y);
-                pop()
 
-                push()
-                //distance between
-                line(ship.pos.x, ship.pos.y, lsr.x, lsr.y)
-                ellipse(ship.pos.x, ship.pos.y, 5, 5);
-                ellipse(lsr.x, lsr.y, 5, 5);
-                translate((ship.pos.x + lsr.x) / 2, (ship.pos.y + lsr.y) / 2);
-                rotate(atan2(lsr.y - ship.pos.y, lsr.x - ship.pos.x));
-                text(nfc(d, 1), 0, -5);
-                pop()
-            }
-            if (d < scl && lsr.id !== ship.id) {
-                ship.reset()
-            }
-
-
-        }
 
     }
 
     ship.edges();
     ship.ruLasers();
+    ship.lasers.forEach(lsr => {
+        if (lsr.active == false) {
+            let data = lsr.lid
+            socket.emit('removeLaser', data)
+        }
+    });
     ship.render();
     ship.turn();
     ship.update();
-    var data = {
+    let data = {
         x: ship.pos.x,
         y: ship.pos.y,
         h: ship.heading,
+        isalive: ship.isalive,
         lasers: ship.getLaserData()
     };
     socket.emit('update', JSON.stringify(data));
