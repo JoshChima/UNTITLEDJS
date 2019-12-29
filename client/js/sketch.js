@@ -34,10 +34,19 @@ function setup() {
 
     socket.on('heartbeat', function (d) {
         let data = JSON.parse(d);
-        console.log(socket.id)
-        console.log(data);
+        // console.log(socket.id)
+        // console.log(data);
         players = data;
     });
+
+    socket.on('laserHasHit', function (data) {
+        ship.lasers.forEach(laser => {
+            if (laser.uniqueID == data.a_lid) {
+                laser.active == false;
+            }
+            console.log('Your laser hit ' + data.t_sid)
+        })
+    })
 };
 
 function draw() {
@@ -80,18 +89,21 @@ function draw() {
                     point(lsr.x, lsr.y);
                     pop()
 
-                    push()
                     //distance between
-                    line(ship.pos.x, ship.pos.y, lsr.x, lsr.y)
-                    ellipse(ship.pos.x, ship.pos.y, 5, 5);
-                    ellipse(lsr.x, lsr.y, 5, 5);
-                    translate((ship.pos.x + lsr.x) / 2, (ship.pos.y + lsr.y) / 2);
-                    rotate(atan2(lsr.y - ship.pos.y, lsr.x - ship.pos.x));
-                    text(nfc(ld, 1), 0, -5);
-                    pop()
+                    // push()
+                    // line(ship.pos.x, ship.pos.y, lsr.x, lsr.y)
+                    // ellipse(ship.pos.x, ship.pos.y, 5, 5);
+                    // ellipse(lsr.x, lsr.y, 5, 5);
+                    // translate((ship.pos.x + lsr.x) / 2, (ship.pos.y + lsr.y) / 2);
+                    // rotate(atan2(lsr.y - ship.pos.y, lsr.x - ship.pos.x));
+                    // text(nfc(ld, 1), 0, -5);
+                    // pop()
                 }
                 if (ld < scl) {
                     ship.reset()
+                    socket.emit('laserHit', { sid: lsr.sid, lid: lsr.lid});
+                    socket.emit('removeLaser', lsr.lid)
+                    console.log('You where hit by ' + lsr.sid)
                 }
 
 
@@ -103,13 +115,13 @@ function draw() {
     }
 
     ship.edges();
-    ship.ruLasers();
     ship.lasers.forEach(lsr => {
         if (lsr.active == false) {
-            let data = lsr.lid
+            let data = lsr.uniqueID
             socket.emit('removeLaser', data)
         }
     });
+    ship.ruLasers();
     ship.render();
     ship.turn();
     ship.update();

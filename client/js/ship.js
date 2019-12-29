@@ -21,6 +21,7 @@ function Ship(id, x, y) {
     this.rotation = 0;
     this.velocity = createVector(0, 0);
     this.isBoosting = false;
+    this.isFiring = false;
     this.isalive = true;
     this.lasers = [];
 
@@ -38,20 +39,24 @@ function Ship(id, x, y) {
         this.rotation = 0;
         this.velocity = createVector(0, 0);
         this.isBoosting = false;
-        this.isBeeming = false
+        this.isFiring = false;
+        // this.isBeeming = false
         this.isalive = true;
     }
 
     this.boosting = function (b) {
         this.isBoosting = b;
     }
-    this.beeming = function (b) {
-        this.isBeeming = b;
+    this.firing = function (b) {
+        this.isFiring = b;
     }
 
     this.update = function () {
         if (this.isBoosting) {
             this.boost();
+        }
+        if (this.isfiring) {
+            this.fire();
         }
         this.pos.add(this.velocity);
         this.velocity.mult(0.99)
@@ -61,6 +66,10 @@ function Ship(id, x, y) {
         var force = p5.Vector.fromAngle(this.heading)
         force.mult(0.1); //tweak this for speed differences between players
         this.velocity.add(force)
+    }
+
+    this.fire = function () {
+        this.lasers.push(new Laser(this.id, this.pos, this.heading));
     }
 
     this.render = function () {

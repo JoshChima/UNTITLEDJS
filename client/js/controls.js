@@ -1,12 +1,15 @@
 function keyReleased() {
     ship.setRotation(0);
     ship.boosting(false);
+    ship.firing(false)
 }
 
 function keyPressed() {
     //Fire
     if (key == ' ') {
-        ship.lasers.push(new Laser(ship.id, ship.pos, ship.heading));
+        ship.fire();
+        ship.firing(true);
+        // ship.lasers.push(new Laser(ship.id, ship.pos, ship.heading));
         let data = ship.getOneLaserData((ship.lasers.length - 1));
         socket.emit('addLaser', JSON.stringify(data));
     }

@@ -2,7 +2,7 @@ const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
 const dbname = "unititledjs_mongodb";
 require('dotenv').config()
-const url = process.env.MONGODB_URI || "mongodb://localhost:untitledjs"
+const url = process.env.MONGODB_URI || "mongodb://localhost:27017"
 const mongoOptions = {useNewUrlParser : true, useUnifiedTopology: true}
 
 const state = {
