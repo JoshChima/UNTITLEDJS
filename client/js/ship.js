@@ -55,11 +55,11 @@ function Ship(id, x, y) {
         if (this.isBoosting) {
             this.boost();
         }
-        if (this.isfiring) {
+        if (this.isFiring) {
             this.fire();
         }
         this.pos.add(this.velocity);
-        this.velocity.mult(0.99)
+        this.velocity.mult(0.999)
     }
 
     this.boost = function () {
@@ -70,6 +70,8 @@ function Ship(id, x, y) {
 
     this.fire = function () {
         this.lasers.push(new Laser(this.id, this.pos, this.heading));
+        let data = this.getOneLaserData((ship.lasers.length - 1));
+        socket.emit('addLaser', JSON.stringify(data));
     }
 
     this.render = function () {

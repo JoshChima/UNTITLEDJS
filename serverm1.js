@@ -117,7 +117,7 @@ function heartbeat() {
                         lid: laser.lid
                     }, function (err, obj) {
                         if (err) throw err;
-                        console.log(obj.result.n + " document(s) deleted");
+                        // console.log(obj.result.n + " document(s) deleted");
                     })
                 })
                 res = _.without(res, _.findWhere(res, {
@@ -128,7 +128,7 @@ function heartbeat() {
                     sid: player.sid
                 }, function (err, obj) {
                     if (err) throw err;
-                    console.log(obj.result.n + " document(s) deleted");
+                    // console.log(obj.result.n + " document(s) deleted");
                 })
             }
         })
@@ -184,7 +184,7 @@ io.on('connection', function (socket) {
             active: data.active
         }, function (err, res) {
             if (err) throw err;
-            console.log("Number of documents inserted: " + res.insertedCount);
+            // console.log("Number of documents inserted: " + res.insertedCount);
         });
         projectiles.push({
             lid: data.lid,
@@ -198,8 +198,8 @@ io.on('connection', function (socket) {
         }
         laser_collection.deleteOne(query, function (err, res) {
             if (err) throw err;
-            console.log("deleted one");
-            console.log(res)
+            // console.log("deleted one");
+            // console.log(res)
         });
         let projectileIndex = _.findLastIndex(projectiles, {
             lid: data
@@ -215,7 +215,7 @@ io.on('connection', function (socket) {
             t_sid: target_sid,
             a_lid: aggress_lid
         })
-        console.log()
+        console.log(target_sid + ' shot by ' + aggress_sid)
     })
 
     socket.on('update', function (d) {
@@ -259,7 +259,7 @@ io.on('connection', function (socket) {
                 }
                 laser_collection.updateOne(query, newVal, function (err, res) {
                     if (err) throw err;
-                    console.log(res.result.nModified + " document(s) updated");
+                    // console.log(res.result.nModified + " document(s) updated");
                 });
             });
         }
@@ -335,7 +335,7 @@ io.on('connection', function (socket) {
             sid: socket.id
         }, function (err, obj) {
             if (err) throw err;
-            console.log(obj.result.n + " document(s) deleted");
+            // console.log(obj.result.n + " document(s) deleted");
         })
         console.log('Client ' + socket.id + ' has disconnected');
     });

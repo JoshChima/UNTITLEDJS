@@ -51,6 +51,12 @@ function setup() {
 
 function draw() {
     background(100);
+    // push()
+    // textAlign(CENTER);
+    // textSize(12);
+    // let position = str(ship.pos.x) + str(ship.pos.y)
+    // text(position, ship.pos.x, ship.pos.y)
+    // pop()
     translate(width / 2, height / 2)
     translate(-ship.pos.x, -ship.pos.y)
 
