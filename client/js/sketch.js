@@ -64,7 +64,7 @@ function setup() {
         ship.lasers.forEach(laser => {
             if (laser.uniqueID == data.a_lid) {
                 laser.lifespan = 0;
-                ship.score = 10;
+                ship.score += 10;
             }
             console.log('Your laser hit ' + data.t_sid)
         })
@@ -74,7 +74,7 @@ function setup() {
 function draw() {
     newCanvas()
 
-    background(50);
+    background(0);
 
     // image(bg, 0, 0, ArenaWidth*2, ArenaHeight*2);
 
@@ -105,15 +105,15 @@ function draw() {
             pop()
 
             if (ship) {
-                push()
-                //distance between
-                line(ship.pos.x, ship.pos.y, players[i].x, players[i].y)
-                ellipse(ship.pos.x, ship.pos.y, 5, 5);
-                ellipse(players[i].x, players[i].y, 5, 5);
-                translate((ship.pos.x + players[i].x) / 2, (ship.pos.y + players[i].y) / 2);
-                rotate(atan2(players[i].y - ship.pos.y, players[i].x - ship.pos.x));
-                text(nfc(d, 1), 0, -5);
-                pop()
+                // push()
+                // //distance between
+                // line(ship.pos.x, ship.pos.y, players[i].x, players[i].y)
+                // ellipse(ship.pos.x, ship.pos.y, 5, 5);
+                // ellipse(players[i].x, players[i].y, 5, 5);
+                // translate((ship.pos.x + players[i].x) / 2, (ship.pos.y + players[i].y) / 2);
+                // rotate(atan2(players[i].y - ship.pos.y, players[i].x - ship.pos.x));
+                // text(nfc(d, 1), 0, -5);
+                // pop()
 
                 for (let l = 0; l < players[i].lasers.length; l++) {
                     let lsr = players[i].lasers[l];
@@ -122,7 +122,8 @@ function draw() {
                         push()
                         fill(255, 0, 0)
                         strokeWeight(4);
-                        point(lsr.x, lsr.y);
+                        ellipse(lsr.x, lsr.y, 5, 5);
+                        // point(lsr.x, lsr.y);
                         pop()
                     }
                     ship.hit(ld, lsr)
@@ -160,5 +161,6 @@ function draw() {
     //camera(0, 0, 20 + sin(frameCount * 0.01) * 10, 0, 0, 0, 0, 1, 0);
     //camera(ship.pos.x, ship.pos.y, zoom.value())
 
-    if (ship) {document.getElementById("position").innerHTML = "Username: " + username + "<br> Score: " + ship.score + "<br> Health: " + ship.health + "<br> X: " + int(ship.pos.x) + "<br> Y: " + int(ship.pos.y);}
+    if (ship) {
+        document.getElementById("position").innerHTML = "Username: " + username + "<br> Score: " + ship.score + "<br> Health: " + ship.health + "<br> X: " + int(ship.pos.x) + "<br> Y: " + int(ship.pos.y) + "<br> CoolDown: " + int(ship.coolDown);}
 }

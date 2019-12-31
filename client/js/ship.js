@@ -25,9 +25,10 @@ function Ship( username, id, x, y, scl) {
     this.isFiring = false;
     this.isalive = true;
     this.lasers = [];
+    this.coolDown = 0
 
-    this.health = 1000
-    this.score = 0
+    this.health = 1000;
+    this.score = 0;
 
     this.getLaserData = function () {
         const arr = this.lasers.map(lsr => listTransform(lsr))
@@ -48,6 +49,8 @@ function Ship( username, id, x, y, scl) {
         this.isalive = true;
         this.health = 1000
         this.score = 0
+        this.coolDown = 0
+
     }
 
     this.boosting = function (b) {
@@ -61,11 +64,22 @@ function Ship( username, id, x, y, scl) {
         if (this.isBoosting) {
             this.boost();
         }
-        if (this.isFiring) {
+        if (this.isFiring && this.coolDown < 5) {
             this.fire();
+        }
+        if (this.coolDown > 0 ) {
+            this.coolDown -= 0.5;
         }
         this.pos.add(this.velocity);
         this.velocity.mult(0.991)
+    }
+
+    this.gunHeatUp = function () {
+        if (this.coolDown < 4) {
+            this.coolDown += 1;
+        } else if (this.coolDown == 4) {
+            this.coolDown += 5;
+        }
     }
 
     this.boost = function () {
@@ -75,9 +89,10 @@ function Ship( username, id, x, y, scl) {
     }
 
     this.fire = function () {
-        this.lasers.push(new Laser(this.id, this.pos, this.heading));
+        this.lasers.push(new Laser(this.id, this.pos.x, this.pos.y, this.heading));
         let data = this.getOneLaserData((ship.lasers.length - 1));
         socket.emit('addLaser', JSON.stringify(data));
+        this.gunHeatUp()
     }
 
     this.render = function () {

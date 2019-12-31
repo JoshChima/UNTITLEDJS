@@ -5,11 +5,11 @@ function uuid() {
       });
     return gUuid
   }
-function Laser(id ,spos, angle) {
+function Laser(id ,x, y, angle) {
     this.shipID = id
     this.uniqueID = id + '_' + uuid()
 
-    this.pos = createVector(spos.x, spos.y);
+    this.pos = createVector(x, y);
     this.velocity = p5.Vector.fromAngle(angle);
     this.velocity.mult(15);
     this.active = true
