@@ -7,10 +7,10 @@
     <title>UNTITLED</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body onresize="newCanvas()">
     <div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.js" SameSite=None></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.dom.js" SameSite=None></script>
@@ -24,12 +24,24 @@
         <script src="js/ship.js"></script>
         <script src="js/controls.js"></script>
         <script src="js/laser.js"></script>
-        
-
-        <!-- <div class="container" style="width: 800px;">
-            <div id="jumbo-canvas" class="jumbotron">
+        <h4 id="position" style="color:whitesmoke;"></h4>
+        <div id="login" class="modal-dialog text-center">
+            <div class="col-sm-9 main-section">
+                <div class="modal-content">
+                    <div class="col-12 form-input">
+                        <form id="login-form">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Enter Nickname">
+                            </div>
+                            <button type="button" class="btn btn-success" onclick="newShip()">Login</button>
+                        </form>
+                    </div>
+                </div>
             </div>
-        </div> -->
+        </div>
+        <div id="jumbo-canvas" class="jumbotron" style="width: 100vw; height: 100vw;"></div>
+        
+        
         <!-- Bootstrap -->
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
             integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">

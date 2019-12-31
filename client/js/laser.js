@@ -3,7 +3,6 @@ function uuid() {
         var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
-    console.log(gUuid)
     return gUuid
   }
 function Laser(id ,spos, angle) {
@@ -12,11 +11,16 @@ function Laser(id ,spos, angle) {
 
     this.pos = createVector(spos.x, spos.y);
     this.velocity = p5.Vector.fromAngle(angle);
-    this.velocity.mult(10);
+    this.velocity.mult(15);
     this.active = true
+    this.lifespan = 255;
 
     this.update = function() {
         this.pos.add(this.velocity);
+        this.lifespan -= 2;
+        if (this.lifespan<0) {
+            this.active = false
+        }
     }
 
     this.edges = function () {

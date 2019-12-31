@@ -12,17 +12,51 @@ const collection = "untitled_col"
 var player_collection;
 var laser_collection;
 
+var ArenaWidth = 2000
+var ArenaHeight = 2000
+
+var stars = [];
 //var player_bulk = db.getDB().player_collection.initializeUnorderedBulkOp();
 //var laser_bulk = db.getDB().laser_collection.initializeUnorderedBulkOp();
 
 //let Player = require("./client/js/Player");
-function Ship(id, x, y, h, lasers) {
+function Ship(username, id, x, y, h, lasers) {
+    this.username = username;
     this.sid = id;
     this.x = x;
     this.y = y;
     this.heading = h;
     this.lasers = lasers;
 }
+function getRndInteger(min, max) {
+    return Math.floor(Math.random() * (max - min) ) + min;
+  }
+
+function getRndFloat(min, max) {
+return Math.random() * (max - min) + min;
+}
+
+function Star() {
+    this.x = getRndInteger(-ArenaWidth, ArenaWidth);
+    this.y = getRndInteger(-ArenaHeight, ArenaHeight);
+    this.size = getRndFloat(0.25, 3);
+    this.t = getRndFloat(6.28318530717958647693);
+
+    this.starData = function () {
+        let data = {
+            x: this.x,
+            y: this.y,
+            size: this.size,
+            t: this.t
+        }
+        return data
+    }
+
+    this.update = function () {
+        this.t += 0.1;
+    }
+}
+
 let players = [];
 let projectiles = [];
 
@@ -56,6 +90,9 @@ db.connect((err) => {
         laser_collection = db.getDB().collection("laser_col")
         server.listen(PORT, function () {
             console.log("Server running")
+            for (var i = 0; i < 1000; i++) {
+                stars[i] = new Star();
+            }
 
             // let allSids = player_collection.find({
             //     sid: {
@@ -74,7 +111,7 @@ var io = require('socket.io')(server);
 
 app.use(express.static('client'));
 
-setInterval(heartbeat, 60);
+setInterval(heartbeat, 100);
 
 function findAllPlayer_SpecField(fieldOptions) {
     fO = fieldOptions
@@ -95,7 +132,11 @@ function findAllPlayer_SpecField(fieldOptions) {
 // }
 
 function heartbeat() {
-
+    for (var i = 0; i < stars.length; i++) {
+        stars[i].update();
+    }
+    let dataset = stars.map(star => star.starData())
+    io.emit('starUpdate',dataset);
     player_collection.aggregate([{
         $lookup: {
             from: 'laser_col',
@@ -150,6 +191,7 @@ io.on('connection', function (socket) {
     socket.on('start', function (d) {
         let data = JSON.parse(d)
         player_collection.insertOne({
+            username: data.username,
             sid: socket.id,
             x: data.x,
             y: data.y,
@@ -170,7 +212,7 @@ io.on('connection', function (socket) {
         });
 
 
-        let ship = new Ship(socket.id, data.x, data.y, data.h, data.lasers);
+        let ship = new Ship(data.username, socket.id, data.x, data.y, data.h, data.lasers);
         players.push(ship);
     });
 
@@ -219,7 +261,7 @@ io.on('connection', function (socket) {
     })
 
     socket.on('update', function (d) {
-
+        
         let data = JSON.parse(d)
 
         let query = {
@@ -263,7 +305,7 @@ io.on('connection', function (socket) {
                 });
             });
         }
-    })
+    });
     let ship;
     for (let i = 0; i < players.length; i++) {
         let ESid = players[i].sid;
@@ -275,31 +317,8 @@ io.on('connection', function (socket) {
             ship.lasers = data.lasers
         }
     }
+    
 
-    // socket.on('resetCollections', function () {
-    //     let dp;
-    //     let dl;
-    //     db.getDB().collection(player_collection).deleteMany({}, function(err, delOK) {
-    //         if (err) throw err;
-    //         if (delOK) {
-    //             console.log("Player Collection cleared");
-    //             dp = delOK;
-    //         }
-    //       });
-    //     db.getDB().collection(player_collection).deleteMany({}, function(err, delOK) {
-    //     if (err) throw err;
-    //     if (delOK) {
-    //         console.log("Player Collection cleared");
-    //         dl = delOK;
-    //     }
-    //     });
-    //     if(dp && dl) {
-    //         process.exit();
-    //     } else {
-    //         console.log('action failed')
-    //         process.exit();
-    //     }
-    // });
 
     socket.on('disconnect', function () {
         for (let i = 0; i < players.length; i++) {

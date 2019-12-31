@@ -13,10 +13,11 @@ function listTransform(lsr) {
     return data
 }
 //width/2, height/2
-function Ship(id, x, y) {
+function Ship( username, id, x, y, scl) {
+    this.username = username
     this.id = id;
     this.pos = createVector(x, y);
-    this.r = 10;
+    this.r = scl;
     this.heading = 0;
     this.rotation = 0;
     this.velocity = createVector(0, 0);
@@ -24,6 +25,9 @@ function Ship(id, x, y) {
     this.isFiring = false;
     this.isalive = true;
     this.lasers = [];
+
+    this.health = 1000
+    this.score = 0
 
     this.getLaserData = function () {
         const arr = this.lasers.map(lsr => listTransform(lsr))
@@ -42,6 +46,8 @@ function Ship(id, x, y) {
         this.isFiring = false;
         // this.isBeeming = false
         this.isalive = true;
+        this.health = 1000
+        this.score = 0
     }
 
     this.boosting = function (b) {
@@ -59,7 +65,7 @@ function Ship(id, x, y) {
             this.fire();
         }
         this.pos.add(this.velocity);
-        this.velocity.mult(0.999)
+        this.velocity.mult(0.991)
     }
 
     this.boost = function () {
@@ -96,14 +102,32 @@ function Ship(id, x, y) {
         this.heading += this.rotation;
     }
 
-    this.edges = function () {
-        if (between((this.pos.x), -ArenaWidth, ArenaWidth) === false) {
-            this.isalive = false;
+    this.deathCheck = function () {
+        this.edges()
+        if (this.health<0) {
+            this.isalive = false
             this.reset()
         }
+    }
+
+    this.hit = function (ld, lsr) {
+        if (ld < this.r) {
+            socket.emit('laserHit', {
+                sid: lsr.sid,
+                lid: lsr.lid
+            });
+            socket.emit('removeLaser', lsr.lid)
+            console.log('You where hit by ' + lsr.sid)
+            this.health -= 10
+        }
+    }
+
+    this.edges = function () {
+        if (between((this.pos.x), -ArenaWidth, ArenaWidth) === false) {
+            this.health -= 10
+        }
         if (between((this.pos.y), -ArenaHeight, ArenaHeight) == false) {
-            this.isalive = false;
-            this.reset()
+            this.health -= 10
         }
     }
 
