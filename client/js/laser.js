@@ -11,7 +11,7 @@ function Laser(id ,x, y, angle) {
 
     this.pos = createVector(x, y);
     this.velocity = p5.Vector.fromAngle(angle);
-    this.velocity.mult(15);
+    this.velocity.mult(20);
     this.active = true
     this.lifespan = 255;
 
@@ -23,20 +23,44 @@ function Laser(id ,x, y, angle) {
         }
     }
 
-    this.edges = function () {
-        if (between((this.pos.x), -ArenaWidth, ArenaWidth) === false) {
-            this.active = false
-        }
-        if (between((this.pos.y), -ArenaHeight, ArenaHeight) == false) {
-            this.active = false;
-        }
-    }
+    // this.edges = function () {
+    //     if (between((this.pos.x), -ArenaWidth, ArenaWidth) === false) {
+    //         this.active = false
+    //     }
+    //     if (between((this.pos.y), -ArenaHeight, ArenaHeight) == false) {
+    //         this.active = false;
+    //     }
+    // }
 
     this.render = function() {
         push()
         stroke(255);
         strokeWeight(4);
         point(this.pos.x, this.pos.y);
+        pop()
+    }
+
+}
+
+function Beam(id ,x, y) {
+    this.shipID = id
+    this.uniqueID = id + '_' + uuid()
+
+    this.pos = createVector(x, y);
+    this.active = true
+    this.lifespan = 500;
+
+    this.update = function() {
+        this.lifespan -= 2;
+        if (this.lifespan<0) {
+            this.active = false
+        }
+    }
+
+    this.render = function() {
+        push()
+        fill(255,0,0)
+        ellipse(this.pos.x, this.pos.y, scl+(scl*.3), scl+(scl*.3));
         pop()
     }
 

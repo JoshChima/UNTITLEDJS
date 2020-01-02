@@ -1,6 +1,9 @@
 function keyReleased() {
-    if (key == ' ') {
-        ship.firing(false)
+    if (key == 'f') {
+        ship.firing(false);
+    }
+    if (key == 'b') {
+        ship.beamActive(false);
     }
     if (keyCode == LEFT_ARROW) {
         ship.setRotation(0);
@@ -15,6 +18,7 @@ function keyReleased() {
 }
 
 function keyPressed() {
+    console.log(key)
     // if (key == 'r') {
     //     socket.emit('resetCollections')
     // }
@@ -26,15 +30,17 @@ function keyPressed() {
     if (keyCode == LEFT_ARROW) {
         ship.setRotation(-0.1);
     }
-    else if (keyCode == RIGHT_ARROW) {
+    if (keyCode == RIGHT_ARROW) {
         ship.setRotation(0.1);
     }
     //Fire
-    else if (key == ' ') {
+    if (key == 'f') {
         ship.fire();
-        if (keyCode !== LEFT_ARROW || keyCode !== RIGHT_ARROW) {
-            ship.firing(true);
-        }
+        ship.firing(true);
         // ship.lasers.push(new Laser(ship.id, ship.pos, ship.heading));
+    }
+    if (key == 'b') {
+        ship.activateBeam();
+        ship.beamActive(true);
     }
 }

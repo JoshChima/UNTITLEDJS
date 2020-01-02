@@ -21,7 +21,8 @@ function shipData() {
         y: ship.pos.y,
         h: ship.heading,
         isalive: ship.isalive,
-        lasers: ship.getLaserData()
+        lasers: ship.getLaserData(),
+        beams: ship.getBeamData()
     };
     return shipData
 }
@@ -39,7 +40,7 @@ function newShip() {
     yert.style.display = "none";
     startX = floor(random(floor(ArenaWidth / scl))) * scl;
     startY = floor(random(floor(ArenaHeight / scl))) * scl;
-    ship = new Ship(username ,socket.id, startX, startY, scl);
+    ship = new Ship(username, socket.id, startX, startY, scl);
 
     let data = shipData()
     socket.emit('start', JSON.stringify(data));
@@ -65,8 +66,18 @@ function setup() {
             if (laser.uniqueID == data.a_lid) {
                 laser.lifespan = 0;
                 ship.score += 10;
+                console.log('Your laser hit ' + data.t_sid)
             }
-            console.log('Your laser hit ' + data.t_sid)
+        })
+    })
+
+    socket.on('beamHasHit', function (data) {
+        ship.beams.forEach(beam => {
+            if (beam.uniqueID == data.a_lid) {
+                beam.lifespan = 0;
+                ship.score += 100;
+                console.log('Your beam hit ' + data.t_sid)
+            }
         })
     })
 };
@@ -86,11 +97,15 @@ function draw() {
     // text(position, ship.pos.x, ship.pos.y)
     // pop()
     translate(width / 2, height / 2)
-    if (ship) {translate(-ship.pos.x, -ship.pos.y)}
+    if (ship) {
+        translate(-ship.pos.x, -ship.pos.y)
+    }
 
     for (let i = 0; i < players.length; i++) {
         let d;
-        if (ship) {d = int(dist(ship.pos.x, ship.pos.y, players[i].x, players[i].y));}
+        if (ship) {
+            d = int(dist(ship.pos.x, ship.pos.y, players[i].x, players[i].y));
+        }
 
         if (ship && players[i].sid !== socket.id && d < Math.max(width, height)) {
             push()
@@ -104,30 +119,40 @@ function draw() {
             triangle(-scl, scl, scl, scl, 0, -scl);
             pop()
 
-            if (ship) {
-                // push()
-                // //distance between
-                // line(ship.pos.x, ship.pos.y, players[i].x, players[i].y)
-                // ellipse(ship.pos.x, ship.pos.y, 5, 5);
-                // ellipse(players[i].x, players[i].y, 5, 5);
-                // translate((ship.pos.x + players[i].x) / 2, (ship.pos.y + players[i].y) / 2);
-                // rotate(atan2(players[i].y - ship.pos.y, players[i].x - ship.pos.x));
-                // text(nfc(d, 1), 0, -5);
-                // pop()
+            // push()
+            // //distance between
+            // line(ship.pos.x, ship.pos.y, players[i].x, players[i].y)
+            // ellipse(ship.pos.x, ship.pos.y, 5, 5);
+            // ellipse(players[i].x, players[i].y, 5, 5);
+            // translate((ship.pos.x + players[i].x) / 2, (ship.pos.y + players[i].y) / 2);
+            // rotate(atan2(players[i].y - ship.pos.y, players[i].x - ship.pos.x));
+            // text(nfc(d, 1), 0, -5);
+            // pop()
 
-                for (let l = 0; l < players[i].lasers.length; l++) {
-                    let lsr = players[i].lasers[l];
-                    let ld = int(dist(ship.pos.x, ship.pos.y, lsr.x, lsr.y));
-                    if (ld < Math.max(width, height)) {
-                        push()
-                        fill(255, 0, 0)
-                        strokeWeight(4);
-                        ellipse(lsr.x, lsr.y, 5, 5);
-                        // point(lsr.x, lsr.y);
-                        pop()
-                    }
-                    ship.hit(ld, lsr)
+            for (let l = 0; l < players[i].beams.length; l++) {
+                let bm = players[i].beams[l];
+                let bd = int(dist(ship.pos.x, ship.pos.y, bm.x, bm.y));
+                if (bd < Math.max(width, height)) {
+                    push()
+                    fill(255, 0, 0)
+                    ellipse(bm.x, bm.y, scl + (scl * .3), scl + (scl * .3));
+                    pop()
                 }
+                ship.hit(bd, bm, 'beam')
+            }
+
+            for (let l = 0; l < players[i].lasers.length; l++) {
+                let lsr = players[i].lasers[l];
+                let ld = int(dist(ship.pos.x, ship.pos.y, lsr.x, lsr.y));
+                if (ld < Math.max(width, height)) {
+                    push()
+                    fill(255, 0, 0)
+                    strokeWeight(4);
+                    ellipse(lsr.x, lsr.y, 5, 5);
+                    //point(lsr.x, lsr.y);
+                    pop()
+                }
+                ship.hit(ld, lsr, 'laser')
             }
         }
 
@@ -144,6 +169,7 @@ function draw() {
             }
         });
         ship.ruLasers();
+        ship.ruBeams();
         ship.render();
         ship.turn();
         ship.update();
@@ -162,5 +188,6 @@ function draw() {
     //camera(ship.pos.x, ship.pos.y, zoom.value())
 
     if (ship) {
-        document.getElementById("position").innerHTML = "Username: " + username + "<br> Score: " + ship.score + "<br> Health: " + ship.health + "<br> X: " + int(ship.pos.x) + "<br> Y: " + int(ship.pos.y) + "<br> CoolDown: " + int(ship.coolDown);}
+        document.getElementById("position").innerHTML = "Username: " + username + "<br> Score: " + ship.score + "<br> Health: " + ship.health + "<br> X: " + int(ship.pos.x) + "<br> Y: " + int(ship.pos.y) + "<br> CoolDown: " + int(ship.coolDown) + "<br> Heading: " + ship.heading;
+    }
 }

@@ -1,3 +1,4 @@
+
 function between(x, min, max) {
     return x >= min && x <= max;
 }
@@ -24,7 +25,13 @@ function Ship( username, id, x, y, scl) {
     this.isBoosting = false;
     this.isFiring = false;
     this.isalive = true;
+    this.beamIsActive = false;
+
+
     this.lasers = [];
+    this.beams = [];
+
+
     this.coolDown = 0
 
     this.health = 1000;
@@ -37,6 +44,13 @@ function Ship( username, id, x, y, scl) {
     this.getOneLaserData = function (index) {
         return listTransform(this.lasers[index])
     }
+    this.getBeamData = function () {
+        const arr = this.beams.map(beam => listTransform(beam))
+        return arr
+    }
+    this.getOneBeamData = function (index) {
+        return listTransform(this.beams[index])
+    }
 
     this.reset = function () {
         this.pos = createVector(ArenaWidth / 2, ArenaHeight / 2); //change this
@@ -45,6 +59,7 @@ function Ship( username, id, x, y, scl) {
         this.velocity = createVector(0, 0);
         this.isBoosting = false;
         this.isFiring = false;
+        this.beamIsActive = false;
         // this.isBeeming = false
         this.isalive = true;
         this.health = 1000
@@ -59,13 +74,19 @@ function Ship( username, id, x, y, scl) {
     this.firing = function (b) {
         this.isFiring = b;
     }
+    this.beamActive = function(b) {
+        this.beamIsActive = b;
+    }
 
     this.update = function () {
         if (this.isBoosting) {
             this.boost();
         }
-        if (this.isFiring && this.coolDown < 5) {
+        if (this.isFiring && this.coolDown < 100) {
             this.fire();
+        }
+        if (this.beamIsActive) {
+            this.activateBeam();
         }
         if (this.coolDown > 0 ) {
             this.coolDown -= 0.5;
@@ -75,10 +96,11 @@ function Ship( username, id, x, y, scl) {
     }
 
     this.gunHeatUp = function () {
-        if (this.coolDown < 4) {
+        if (this.coolDown < 100) {
             this.coolDown += 1;
-        } else if (this.coolDown == 4) {
-            this.coolDown += 5;
+        }
+        if (this.coolDown == 99) {
+            this.coolDown += 100;
         }
     }
 
@@ -93,6 +115,12 @@ function Ship( username, id, x, y, scl) {
         let data = this.getOneLaserData((ship.lasers.length - 1));
         socket.emit('addLaser', JSON.stringify(data));
         this.gunHeatUp()
+    }
+
+    this.activateBeam = function () {
+        this.beams.push(new Beam(this.id, this.pos.x, this.pos.y));
+        let data = this.getOneBeamData((ship.beams.length - 1));
+        socket.emit('addBeam', JSON.stringify(data));
     }
 
     this.render = function () {
@@ -125,8 +153,8 @@ function Ship( username, id, x, y, scl) {
         }
     }
 
-    this.hit = function (ld, lsr) {
-        if (ld < this.r) {
+    this.hit = function (ld, lsr, oType) {
+        if (ld < this.r && oType == 'laser') {
             socket.emit('laserHit', {
                 sid: lsr.sid,
                 lid: lsr.lid
@@ -135,10 +163,19 @@ function Ship( username, id, x, y, scl) {
             console.log('You where hit by ' + lsr.sid)
             this.health -= 10
         }
+        if (ld < this.r && oType == 'beam') {
+            socket.emit('beamHit', {
+                sid: lsr.sid,
+                lid: lsr.lid
+            });
+            socket.emit('removeBeam', lsr.lid)
+            console.log('You where hit by ' + lsr.sid)
+            this.health -= 100
+        }
     }
 
     this.edges = function () {
-        if (between((this.pos.x), -ArenaWidth, ArenaWidth) === false) {
+        if (between((this.pos.x), -ArenaWidth, ArenaWidth) == false) {
             this.health -= 10
         }
         if (between((this.pos.y), -ArenaHeight, ArenaHeight) == false) {
@@ -148,12 +185,24 @@ function Ship( username, id, x, y, scl) {
 
     this.ruLasers = function () {
         for (var i = 0; i < this.lasers.length; i++) {
-            this.lasers[i].edges();
+            // this.lasers[i].edges();
             if (this.lasers[i].active == false) {
                 this.lasers.splice(i, 1);
             } else {
                 this.lasers[i].render();
                 this.lasers[i].update();
+            }
+        }
+    }
+
+    this.ruBeams = function () {
+        for (var i = 0; i < this.beams.length; i++) {
+            // this.lasers[i].edges();
+            if (this.beams[i].active == false) {
+                this.beams.splice(i, 1);
+            } else {
+                this.beams[i].render();
+                this.beams[i].update();
             }
         }
     }

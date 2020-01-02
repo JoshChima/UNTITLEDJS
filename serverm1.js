@@ -11,6 +11,7 @@ const db = require("./db")
 const collection = "untitled_col"
 var player_collection;
 var laser_collection;
+var beam_collection;
 
 var ArenaWidth = 2000
 var ArenaHeight = 2000
@@ -28,12 +29,13 @@ function Ship(username, id, x, y, h, lasers) {
     this.heading = h;
     this.lasers = lasers;
 }
+
 function getRndInteger(min, max) {
-    return Math.floor(Math.random() * (max - min) ) + min;
-  }
+    return Math.floor(Math.random() * (max - min)) + min;
+}
 
 function getRndFloat(min, max) {
-return Math.random() * (max - min) + min;
+    return Math.random() * (max - min) + min;
 }
 
 function Star() {
@@ -88,6 +90,7 @@ db.connect((err) => {
         console.log('MD connected')
         player_collection = db.getDB().collection("player_col")
         laser_collection = db.getDB().collection("laser_col")
+        beam_collection = db.getDB().collection("beam_col")
         server.listen(PORT, function () {
             console.log("Server running")
             for (var i = 0; i < 1000; i++) {
@@ -136,13 +139,20 @@ function heartbeat() {
         stars[i].update();
     }
     let dataset = stars.map(star => star.starData())
-    io.emit('starUpdate',dataset);
+    io.emit('starUpdate', dataset);
     player_collection.aggregate([{
         $lookup: {
             from: 'laser_col',
             localField: 'sid',
             foreignField: 'sid',
             as: 'lasers'
+        }
+    }, {
+        $lookup: {
+            from: 'beam_col',
+            localField: 'sid',
+            foreignField: 'sid',
+            as: 'beams'
         }
     }]).toArray(function (err, res) {
         if (err) throw err;
@@ -234,6 +244,24 @@ io.on('connection', function (socket) {
         })
     })
 
+    socket.on('addBeam', function (d) {
+        let data = JSON.parse(d)
+        beam_collection.insertOne({
+            lid: data.lid,
+            sid: socket.id,
+            x: data.x,
+            y: data.y,
+            active: data.active
+        }, function (err, res) {
+            if (err) throw err;
+            // console.log("Number of documents inserted: " + res.insertedCount);
+        });
+        projectiles.push({
+            lid: data.lid,
+            sid: socket.id
+        });
+    });
+
     socket.on('removeLaser', function (data) {
         let query = {
             lid: data
@@ -247,7 +275,22 @@ io.on('connection', function (socket) {
             lid: data
         });
         projectiles.splice(projectileIndex, 1)
-    })
+    });
+
+    socket.on('removeBeam', function (data) {
+        let query = {
+            lid: data
+        }
+        beam_collection.deleteOne(query, function (err, res) {
+            if (err) throw err;
+            // console.log("deleted one");
+            // console.log(res)
+        });
+        let projectileIndex = _.findLastIndex(projectiles, {
+            lid: data
+        });
+        projectiles.splice(projectileIndex, 1)
+    });
 
     socket.on('laserHit', function (slid) {
         let target_sid = socket.id
@@ -260,8 +303,19 @@ io.on('connection', function (socket) {
         console.log(target_sid + ' shot by ' + aggress_sid)
     })
 
+    socket.on('beamHit', function (slid) {
+        let target_sid = socket.id
+        let aggress_sid = slid.sid
+        let aggress_lid = slid.lid
+        io.to(aggress_sid).emit('beamHasHit', {
+            t_sid: target_sid,
+            a_lid: aggress_lid
+        })
+        console.log(target_sid + ' shot by ' + aggress_sid)
+    })
+
     socket.on('update', function (d) {
-        
+
         let data = JSON.parse(d)
 
         let query = {
@@ -285,7 +339,25 @@ io.on('connection', function (socket) {
             // console.log(result.sid + " " + result.x + " " + result.y)
         });
 
-        lsrs = data.lasers
+        lsrs = data.lasers;
+        bms = data.beams;
+
+        if (bms.length > 0) {
+            bms.forEach(bm => {
+                let query = {
+                    lid: bm.lid
+                };
+                let newVal = {
+                    $set: {
+                        active: bm.active
+                    }
+                }
+                beam_collection.updateOne(query, newVal, function (err, res) {
+                    if (err) throw err;
+                    // console.log(res.result.nModified + " document(s) updated");
+                });
+            });
+        }
 
         if (lsrs.length > 0) {
             lsrs.forEach(lsr => {
@@ -317,7 +389,7 @@ io.on('connection', function (socket) {
             ship.lasers = data.lasers
         }
     }
-    
+
 
 
     socket.on('disconnect', function () {
