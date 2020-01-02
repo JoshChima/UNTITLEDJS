@@ -168,6 +168,12 @@ function draw() {
                 socket.emit('removeLaser', data)
             }
         });
+        ship.beam.forEach(beam => {
+            if (beam.active == false) {
+                let data = beam.uniqueID
+                socket.emit('removeBeam', data)
+            }
+        });
         ship.ruLasers();
         ship.ruBeams();
         ship.render();
