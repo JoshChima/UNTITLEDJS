@@ -114,7 +114,7 @@ var io = require('socket.io')(server);
 
 app.use(express.static('client'));
 
-setInterval(heartbeat, 100);
+setInterval(heartbeat, 60);
 
 function findAllPlayer_SpecField(fieldOptions) {
     fO = fieldOptions
@@ -135,11 +135,11 @@ function findAllPlayer_SpecField(fieldOptions) {
 // }
 
 function heartbeat() {
-    for (var i = 0; i < stars.length; i++) {
-        stars[i].update();
-    }
-    let dataset = stars.map(star => star.starData())
-    io.emit('starUpdate', dataset);
+    // for (var i = 0; i < stars.length; i++) {
+    //     stars[i].update();
+    // }
+    // let dataset = stars.map(star => star.starData())
+    // io.emit('starUpdate', dataset);
     player_collection.aggregate([{
         $lookup: {
             from: 'laser_col',
