@@ -34,12 +34,12 @@ function keyPressed() {
         ship.setRotation(0.1);
     }
     //Fire
-    if (key == 'f') {
+    if (key == 'f' && ship) {
         ship.fire();
         ship.firing(true);
         // ship.lasers.push(new Laser(ship.id, ship.pos, ship.heading));
     }
-    if (key == 'b') {
+    if (key == 'b' && ship) {
         ship.activateBeam();
         ship.beamActive(true);
     }
