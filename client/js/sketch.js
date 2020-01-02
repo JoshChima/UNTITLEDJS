@@ -168,7 +168,7 @@ function draw() {
                 socket.emit('removeLaser', data)
             }
         });
-        ship.beam.forEach(beam => {
+        ship.beams.forEach(beam => {
             if (beam.active == false) {
                 let data = beam.uniqueID
                 socket.emit('removeBeam', data)
