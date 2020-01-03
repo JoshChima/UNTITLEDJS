@@ -1,10 +1,16 @@
+
 var socket;
 var ship;
 var zoom;
 var stars = [];
 
 var username;
+var id;
 var players = [];
+var projectiles = {
+    lasers: [],
+    beams: []
+}
 var startX;
 var starty;
 
@@ -20,6 +26,7 @@ function shipData() {
         x: ship.pos.x,
         y: ship.pos.y,
         h: ship.heading,
+        health: ship.health,
         isalive: ship.isalive,
         lasers: ship.getLaserData(),
         beams: ship.getBeamData()
@@ -33,14 +40,14 @@ function newCanvas() {
 }
 
 function newShip() {
-    socket = io()
+    // socket = io()
     yert = document.getElementById("login");
     xert = document.getElementById("login-form");
     username = xert.elements[0].value
     yert.style.display = "none";
     startX = floor(random(floor(ArenaWidth / scl))) * scl;
     startY = floor(random(floor(ArenaHeight / scl))) * scl;
-    ship = new Ship(username, socket.id, startX, startY, scl);
+    ship = new Ship(username, id, startX, startY, scl);
 
     let data = shipData()
     socket.emit('start', JSON.stringify(data));
@@ -49,6 +56,10 @@ function newShip() {
 function setup() {
     bg = loadImage('img/cos.jpg');
     socket = io()
+
+    socket.on('setId', function (data) {
+        id = data.id
+    })
     // console.log(socket.id);
     socket.on('starUpdate', function (dataset) {
         stars = dataset
@@ -58,7 +69,9 @@ function setup() {
         let data = JSON.parse(d);
         // console.log(socket.id)
         // console.log(data);
-        players = data;
+        players = data.players;
+        projectiles.lasers = data.projectiles.lasers
+        projectiles.beams = data.projectiles.beams
     });
 
     socket.on('laserHasHit', function (data) {
@@ -146,34 +159,57 @@ function draw() {
                 let ld = int(dist(ship.pos.x, ship.pos.y, lsr.x, lsr.y));
                 if (ld < Math.max(width, height)) {
                     push()
-                    fill(255, 0, 0)
+                    stroke(255);
                     strokeWeight(4);
-                    ellipse(lsr.x, lsr.y, 5, 5);
-                    //point(lsr.x, lsr.y);
+                    // ellipse(lsr.x, lsr.y, 5, 5);
+                    point(lsr.x, lsr.y);
                     pop()
                 }
                 ship.hit(ld, lsr, 'laser')
             }
         }
-
-
-
     }
+    // _.each(_.filter(projectiles.lasers, function (proj) {
+    //     let _d = int(dist(ship.pos.x, ship.pos.y, proj.x, proj.y))
+    //     if (_d < Math.max(width, height)) {
+    //         return proj
+    //     }
+    // }), function (proj) {
+    //     ship.hit(d, proj, 'laser')
+    //         push()
+    //         stroke(255);
+    //         strokeWeight(4);
+    //         // ellipse(lsr.x, lsr.y, 5, 5);
+    //         point(proj.x, proj.y);
+    //         pop()
+    // })
+    // _.each(_.filter(projectiles.beams, function (proj) {
+    //     let _d = int(dist(ship.pos.x, ship.pos.y, proj.x, proj.y))
+    //     ship.hit(d, proj, 'beam')
+    //     if (_d < Math.max(width, height)) {
+    //         return proj
+    //     }
+    // }), function (proj) {
+    //     push()
+    //     fill(255, 0, 0)
+    //     ellipse(proj.x, proj.y, scl + (scl * .3), scl + (scl * .3));
+    //     pop()
+    // })
 
     if (ship) {
         ship.deathCheck();
-        ship.lasers.forEach(lsr => {
-            if (lsr.active == false) {
-                let data = lsr.uniqueID
-                socket.emit('removeLaser', data)
-            }
-        });
-        ship.beams.forEach(beam => {
-            if (beam.active == false) {
-                let data = beam.uniqueID
-                socket.emit('removeBeam', data)
-            }
-        });
+        // ship.lasers.forEach(lsr => {
+        //     if (lsr.active == false) {
+        //         let data = lsr.uniqueID
+        //         socket.emit('removeLaser', data)
+        //     }
+        // });
+        // ship.beams.forEach(beam => {
+        //     if (beam.active == false) {
+        //         let data = beam.uniqueID
+        //         socket.emit('removeBeam', data)
+        //     }
+        // });
         ship.ruLasers();
         ship.ruBeams();
         ship.render();

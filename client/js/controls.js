@@ -1,18 +1,18 @@
 function keyReleased() {
-    if (key == 'f') {
+    if (key == 'f' && ship) {
         ship.firing(false);
     }
-    if (key == 'b') {
+    if (key == 'b' && ship) {
         ship.beamActive(false);
     }
-    if (keyCode == LEFT_ARROW) {
+    if (keyCode == LEFT_ARROW && ship) {
         ship.setRotation(0);
     }
-    if (keyCode == RIGHT_ARROW) {
+    if (keyCode == RIGHT_ARROW && ship) {
         ship.setRotation(0);
     }
     
-    if (keyCode == UP_ARROW) {
+    if (keyCode == UP_ARROW && ship) {
         ship.boosting(false);
     }
 }
@@ -23,14 +23,14 @@ function keyPressed() {
     //     socket.emit('resetCollections')
     // }
     //Movement
-    if (keyCode == UP_ARROW) {
+    if (keyCode == UP_ARROW && ship) {
         ship.boost();
         ship.boosting(true);
     }
-    if (keyCode == LEFT_ARROW) {
+    if (keyCode == LEFT_ARROW && ship) {
         ship.setRotation(-0.1);
     }
-    if (keyCode == RIGHT_ARROW) {
+    if (keyCode == RIGHT_ARROW && ship) {
         ship.setRotation(0.1);
     }
     //Fire

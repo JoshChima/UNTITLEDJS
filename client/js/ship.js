@@ -4,7 +4,7 @@ function between(x, min, max) {
 }
 
 function listTransform(lsr) {
-    var data = {
+    let data = {
         lid: lsr.uniqueID,
         sid: lsr.shipID,
         x: lsr.pos.x,
@@ -187,6 +187,7 @@ function Ship( username, id, x, y, scl) {
         for (var i = 0; i < this.lasers.length; i++) {
             // this.lasers[i].edges();
             if (this.lasers[i].active == false) {
+                socket.emit('removeLaser', this.lasers[i].uniqueID)
                 this.lasers.splice(i, 1);
             } else {
                 this.lasers[i].render();
@@ -199,6 +200,7 @@ function Ship( username, id, x, y, scl) {
         for (var i = 0; i < this.beams.length; i++) {
             // this.lasers[i].edges();
             if (this.beams[i].active == false) {
+                socket.emit('removeBeam', this.beams[i].uniqueID)
                 this.beams.splice(i, 1);
             } else {
                 this.beams[i].render();

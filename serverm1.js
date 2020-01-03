@@ -241,7 +241,7 @@ io.on('connection', function (socket) {
         projectiles.push({
             lid: data.lid,
             sid: socket.id
-        })
+        });
     })
 
     socket.on('addBeam', function (d) {
