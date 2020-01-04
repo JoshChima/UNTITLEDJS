@@ -126,8 +126,9 @@ function Ship(username, id, x, y, scl) {
         push();
         translate(this.pos.x, this.pos.y);
         rotate(this.heading + PI / 2)
+        stroke(148,0,211)
+        fill(255,255,255);
         triangle(-this.r, this.r, this.r, this.r, 0, -this.r);
-        stroke(100);
         pop();
     }
 

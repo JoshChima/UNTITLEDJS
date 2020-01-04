@@ -34,33 +34,9 @@ function Laser(id ,x, y, angle) {
 
     this.render = function() {
         push()
-        stroke(255);
-        strokeWeight(4);
+        stroke(148,0,211);
+        strokeWeight(3);
         point(this.pos.x, this.pos.y);
-        pop()
-    }
-
-}
-
-function Beam(id ,x, y) {
-    this.shipID = id
-    this.uniqueID = id + '_' + uuid()
-
-    this.pos = createVector(x, y);
-    this.active = true
-    this.lifespan = 500;
-
-    this.update = function() {
-        this.lifespan -= 2;
-        if (this.lifespan<0) {
-            this.active = false
-        }
-    }
-
-    this.render = function() {
-        push()
-        fill(255,0,0)
-        ellipse(this.pos.x, this.pos.y, scl+(scl*.3), scl+(scl*.3));
         pop()
     }
 

@@ -132,8 +132,11 @@ function draw() {
             text(players[i].username, players[i].x, players[i].y + scl * 3)
             translate(players[i].x, players[i].y);
             rotate(players[i].heading + PI / 2)
+            stroke(255,0,0)
+            fill(255,255,255);
             triangle(-scl, scl, scl, scl, 0, -scl);
             pop()
+            
 
             // push()
             // //distance between
@@ -241,6 +244,6 @@ function draw() {
     //camera(ship.pos.x, ship.pos.y, zoom.value())
 
     if (ship) {
-        document.getElementById("position").innerHTML = "Username: " + username + "<br> Score: " + ship.score + "<br> Health: " + ship.health + "<br> X: " + int(ship.pos.x) + "<br> Y: " + int(ship.pos.y) + "<br> CoolDown: " + int(ship.coolDown) + "<br> Heading: " + ship.heading;
+        document.getElementById("position").innerHTML = "Username: " + username + "<br> Score: " + ship.score + "<br> Health: " + ship.health + "<br> X: " + int(ship.pos.x) + "<br> Y: " + int(ship.pos.y) + "<br> CoolDown: " + int(ship.coolDown) + "<br> Framerate: " + frameRate();
     }
 }

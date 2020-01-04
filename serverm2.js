@@ -68,6 +68,8 @@ io.sockets.on('connection', function (socket) {
     socket.emit('setId', {
         id: socket.id
     });
+    let starset = stars.map(star => star.starData());
+    io.emit('starUpdate', starset);
 
     socket.on('disconnect', function () {
         console.log(`Player ${socket.id} disconnected`);
@@ -93,8 +95,6 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('update', function (d) {
-        let starset = stars.map(star => star.starData())
-        io.emit('starUpdate', starset);
         let data = JSON.parse(d); 
         if (socket.userData !== undefined) {
             socket.userData.username = data.username
