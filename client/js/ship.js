@@ -1,4 +1,3 @@
-
 function between(x, min, max) {
     return x >= min && x <= max;
 }
@@ -14,7 +13,7 @@ function listTransform(lsr) {
     return data
 }
 //width/2, height/2
-function Ship( username, id, x, y, scl) {
+function Ship(username, id, x, y, scl) {
     this.username = username
     this.id = id;
     this.pos = createVector(x, y);
@@ -74,7 +73,7 @@ function Ship( username, id, x, y, scl) {
     this.firing = function (b) {
         this.isFiring = b;
     }
-    this.beamActive = function(b) {
+    this.beamActive = function (b) {
         this.beamIsActive = b;
     }
 
@@ -88,7 +87,7 @@ function Ship( username, id, x, y, scl) {
         if (this.beamIsActive) {
             this.activateBeam();
         }
-        if (this.coolDown > 0 ) {
+        if (this.coolDown > 0) {
             this.coolDown -= 0.5;
         }
         this.pos.add(this.velocity);
@@ -129,11 +128,6 @@ function Ship( username, id, x, y, scl) {
         rotate(this.heading + PI / 2)
         triangle(-this.r, this.r, this.r, this.r, 0, -this.r);
         stroke(100);
-
-        // if (this.isBoosting) {
-
-        // }
-
         pop();
     }
 
@@ -147,7 +141,7 @@ function Ship( username, id, x, y, scl) {
 
     this.deathCheck = function () {
         this.edges()
-        if (this.health<0) {
+        if (this.health < 0) {
             this.isalive = false
             this.reset()
         }
@@ -190,8 +184,12 @@ function Ship( username, id, x, y, scl) {
                 socket.emit('removeLaser', this.lasers[i].uniqueID)
                 this.lasers.splice(i, 1);
             } else {
-                this.lasers[i].render();
+                let _d = int(dist(ship.pos.x, ship.pos.y, this.lasers[i].pos.x, this.lasers[i].pos.y))
+                if (_d < Math.max(width, height)) {
+                    this.lasers[i].render();
+                }
                 this.lasers[i].update();
+
             }
         }
     }
@@ -203,7 +201,10 @@ function Ship( username, id, x, y, scl) {
                 socket.emit('removeBeam', this.beams[i].uniqueID)
                 this.beams.splice(i, 1);
             } else {
-                this.beams[i].render();
+                let _d = int(dist(ship.pos.x, ship.pos.y, this.beams[i].pos.x, this.beams[i].pos.y))
+                if (_d < Math.max(width, height)) {
+                    this.beams[i].render();
+                }
                 this.beams[i].update();
             }
         }

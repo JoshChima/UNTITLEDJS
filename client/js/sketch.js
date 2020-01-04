@@ -1,4 +1,3 @@
-
 var socket;
 var ship;
 var zoom;
@@ -6,6 +5,7 @@ var stars = [];
 
 var username;
 var id;
+var usernames = [];
 var players = [];
 var projectiles = {
     lasers: [],
@@ -44,13 +44,15 @@ function newShip() {
     yert = document.getElementById("login");
     xert = document.getElementById("login-form");
     username = xert.elements[0].value
-    yert.style.display = "none";
-    startX = floor(random(floor(ArenaWidth / scl))) * scl;
-    startY = floor(random(floor(ArenaHeight / scl))) * scl;
-    ship = new Ship(username, id, startX, startY, scl);
+    if (usernames.includes(username) == false) {
+        yert.style.display = "none";
+        startX = floor(random(floor(ArenaWidth / scl))) * scl;
+        startY = floor(random(floor(ArenaHeight / scl))) * scl;
+        ship = new Ship(username, id, startX, startY, scl);
 
-    let data = shipData()
-    socket.emit('start', JSON.stringify(data));
+        let data = shipData()
+        socket.emit('start', JSON.stringify(data));
+    }
 }
 
 function setup() {
@@ -69,9 +71,10 @@ function setup() {
         let data = JSON.parse(d);
         // console.log(socket.id)
         // console.log(data);
+        usernames = data.usernames;
         players = data.players;
-        projectiles.lasers = data.projectiles.lasers
-        projectiles.beams = data.projectiles.beams
+        projectiles.lasers = data.projectiles.lasers;
+        projectiles.beams = data.projectiles.beams;
     });
 
     socket.on('laserHasHit', function (data) {
@@ -142,59 +145,61 @@ function draw() {
             // text(nfc(d, 1), 0, -5);
             // pop()
 
-            for (let l = 0; l < players[i].beams.length; l++) {
-                let bm = players[i].beams[l];
-                let bd = int(dist(ship.pos.x, ship.pos.y, bm.x, bm.y));
-                if (bd < Math.max(width, height)) {
-                    push()
-                    fill(255, 0, 0)
-                    ellipse(bm.x, bm.y, scl + (scl * .3), scl + (scl * .3));
-                    pop()
-                }
-                ship.hit(bd, bm, 'beam')
-            }
+            // for (let l = 0; l < players[i].beams.length; l++) {
+            //     let bm = players[i].beams[l];
+            //     let bd = int(dist(ship.pos.x, ship.pos.y, bm.x, bm.y));
+            //     if (bd < Math.max(width, height)) {
+            //         push()
+            //         fill(255, 0, 0)
+            //         ellipse(bm.x, bm.y, scl + (scl * .3), scl + (scl * .3));
+            //         pop()
+            //     }
+            //     ship.hit(bd, bm, 'beam')
+            // }
 
-            for (let l = 0; l < players[i].lasers.length; l++) {
-                let lsr = players[i].lasers[l];
-                let ld = int(dist(ship.pos.x, ship.pos.y, lsr.x, lsr.y));
-                if (ld < Math.max(width, height)) {
-                    push()
-                    stroke(255);
-                    strokeWeight(4);
-                    // ellipse(lsr.x, lsr.y, 5, 5);
-                    point(lsr.x, lsr.y);
-                    pop()
-                }
-                ship.hit(ld, lsr, 'laser')
-            }
+            // for (let l = 0; l < players[i].lasers.length; l++) {
+            //     let lsr = players[i].lasers[l];
+            //     let ld = int(dist(ship.pos.x, ship.pos.y, lsr.x, lsr.y));
+            //     if (ld < Math.max(width, height)) {
+            //         push()
+            //         stroke(255);
+            //         strokeWeight(4);
+            //         // ellipse(lsr.x, lsr.y, 5, 5);
+            //         point(lsr.x, lsr.y);
+            //         pop()
+            //     }
+            //     ship.hit(ld, lsr, 'laser')
+            // }
         }
     }
-    // _.each(_.filter(projectiles.lasers, function (proj) {
-    //     let _d = int(dist(ship.pos.x, ship.pos.y, proj.x, proj.y))
-    //     if (_d < Math.max(width, height)) {
-    //         return proj
-    //     }
-    // }), function (proj) {
-    //     ship.hit(d, proj, 'laser')
-    //         push()
-    //         stroke(255);
-    //         strokeWeight(4);
-    //         // ellipse(lsr.x, lsr.y, 5, 5);
-    //         point(proj.x, proj.y);
-    //         pop()
-    // })
-    // _.each(_.filter(projectiles.beams, function (proj) {
-    //     let _d = int(dist(ship.pos.x, ship.pos.y, proj.x, proj.y))
-    //     ship.hit(d, proj, 'beam')
-    //     if (_d < Math.max(width, height)) {
-    //         return proj
-    //     }
-    // }), function (proj) {
-    //     push()
-    //     fill(255, 0, 0)
-    //     ellipse(proj.x, proj.y, scl + (scl * .3), scl + (scl * .3));
-    //     pop()
-    // })
+    _.each(_.filter(projectiles.lasers, function (proj) {
+        let _d = int(dist(ship.pos.x, ship.pos.y, proj.x, proj.y))
+        if (_d < Math.max(width, height) && proj.sid !== ship.id) {
+            return proj
+        }
+    }), function (proj) {
+        let _d = int(dist(ship.pos.x, ship.pos.y, proj.x, proj.y))
+        ship.hit(_d, proj, 'laser')
+        push()
+        stroke(255);
+        strokeWeight(4);
+        // ellipse(lsr.x, lsr.y, 5, 5);
+        point(proj.x, proj.y);
+        pop()
+    })
+    _.each(_.filter(projectiles.beams, function (proj) {
+        let _d = int(dist(ship.pos.x, ship.pos.y, proj.x, proj.y))
+        if (_d < Math.max(width, height) && proj.sid !== ship.id) {
+            return proj
+        }
+    }), function (proj) {
+        let _d = int(dist(ship.pos.x, ship.pos.y, proj.x, proj.y))
+        ship.hit(_d, proj, 'beam')
+        push()
+        fill(255, 0, 0)
+        ellipse(proj.x, proj.y, scl + (scl * .3), scl + (scl * .3));
+        pop()
+    })
 
     if (ship) {
         ship.deathCheck();
@@ -219,9 +224,15 @@ function draw() {
         socket.emit('update', JSON.stringify(data));
     }
     stars.forEach(star => {
-        noStroke();
-        let scale = star.size + sin(star.t) * 2;
-        ellipse(star.x, star.y, scale, scale);
+        if (ship) {
+            let _d = int(dist(ship.pos.x, ship.pos.y, star.x, star.y))
+            if (_d < Math.max(width, height)) {
+                noStroke();
+                let scale = star.size + sin(star.t) * 2;
+                ellipse(star.x, star.y, scale, scale);
+            }
+        }
+
     });
     ellipse(ArenaWidth / 2, ArenaHeight / 2, 20, 20);
 

@@ -56,8 +56,6 @@ server.listen(PORT, function () {
     for (var i = 0; i < 1000; i++) {
         stars[i] = new Star();
     }
-    let dataset = stars.map(star => star.starData())
-    io.emit('starUpdate', dataset);
 });
 
 var io = require('socket.io')(server);
@@ -95,6 +93,8 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('update', function (d) {
+        let starset = stars.map(star => star.starData())
+        io.emit('starUpdate', starset);
         let data = JSON.parse(d); 
         if (socket.userData !== undefined) {
             socket.userData.username = data.username
@@ -107,25 +107,17 @@ io.sockets.on('connection', function (socket) {
             // socket.userData.lasers = data.lasers
             // socket.userData.beams = data.beams
             data.lasers.forEach(laser => {
-                if (Object.keys(projectiles.lasers).includes(laser.lid)) {
-                    projectiles.lasers[laser.lid] = {
-                        lid: laser.lid,
-                        sid: laser.sid,
-                        x: laser.x,
-                        y: laser.y,
-                        active: laser.active
-                    }
+                // if (Object.keys(projectiles.lasers).includes(laser.lid)) 
+                if (projectiles.lasers[laser.lid] !== undefined) {
+                    projectiles.lasers[laser.lid].x = laser.x
+                    projectiles.lasers[laser.lid].y = laser.y
+                    projectiles.lasers[laser.lid].active = laser.active
                 }
             });
             data.beams.forEach(beam => {
-                if (Object.keys(projectiles.lasers).includes(beam.lid)) {
-                    projectiles.beams[beam.lid] = {
-                        lid: beam.lid,
-                        sid: beam.sid,
-                        x: beam.x,
-                        y: beam.y,
-                        active: beam.active
-                    }
+                // if (Object.keys(projectiles.beams).includes(beam.lid)) 
+                if (projectiles.beams[beam.lid] !== undefined) {
+                    projectiles.beams[beam.lid].active = beam.active
                 }
             });
         }
@@ -133,6 +125,7 @@ io.sockets.on('connection', function (socket) {
 
     socket.on('addLaser', function (d) {
         let data = JSON.parse(d)
+        // projectiles.newLasers.push(data)
         projectiles.lasers[data.lid] = {
             lid: data.lid,
             sid: data.sid,
@@ -144,6 +137,7 @@ io.sockets.on('connection', function (socket) {
 
     socket.on('addBeam', function (d) {
         let data = JSON.parse(d)
+        // projectiles.newBeams,push(data)
         projectiles.beams[data.lid] = {
             lid: data.lid,
             sid: data.sid,
@@ -183,20 +177,24 @@ io.sockets.on('connection', function (socket) {
     });
 });
 
-setInterval(heartBeat, 33)
+setInterval(heartBeat, 50)
 
 function heartBeat() {
     const nsp = io.of('/');
     let pack = {
         players: [],
+        usernames: [],
         projectiles: {
-            lasers: [],
-            beams: []
+            lasers: Object.values(projectiles.lasers),
+            beams: Object.values(projectiles.beams)
         }
     };
+    // pack.projectiles.lasers.push(...Object.values(projectiles.lasers))
+    // pack.projectiles.beams.push(...Object.values(projectiles.beams))
     for (let id in io.sockets.sockets) {
         const socket = nsp.connected[id]
         if (socket.userData !== undefined) {
+            pack.usernames.push(socket.userData.username)
             pack.players.push({
                 username: socket.userData.username,
                 sid: socket.id,
@@ -205,29 +203,31 @@ function heartBeat() {
                 heading: socket.userData.heading,
                 health: socket.userData.health,
                 score: socket.userData.score,
-                isalive: socket.userData.isalive,
-                lasers: getLasersBySid(socket.id),
-                beams: getBeamsBySid(socket.id)
+                isalive: socket.userData.isalive
+                // lasers: getLasersBySid(socket.id),
+                // beams: getBeamsBySid(socket.id)
             });
-            // pack.projectiles.lasers.concat(getLasersBySid(socket.id));
-            // pack.projectiles.beams.concat(getBeamsBySid(socket.id));
-            // console.log(pack.projectiles.lasers.length)
-            // console.log(pack.projectiles.beams.length)
         }
     }
+    // if (pack.projectiles.lasers.length > 0) {
+        //     console.log(pack.projectiles.lasers.length)
+        // }
+        // if (pack.projectiles.beams.length > 0) {
+        //     console.log(pack.projectiles.beams.length)
+        // }
     if (pack.players.length > 0) {
         io.emit('heartbeat', JSON.stringify(pack));
     }
 }
 
-function getLasersBySid(lsid) {
-    return _.where(projectiles.lasers, {
-        sid: lsid
-    });
-}
+// function getLasersBySid(lsid) {
+//     return _.where(projectiles.lasers, {
+//         sid: lsid
+//     });
+// }
 
-function getBeamsBySid(bsid) {
-    return _.where(projectiles.beams, {
-        sid: bsid
-    });
-}
+// function getBeamsBySid(bsid) {
+//     return _.where(projectiles.beams, {
+//         sid: bsid
+//     });
+// }

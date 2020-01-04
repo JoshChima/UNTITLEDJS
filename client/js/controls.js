@@ -18,7 +18,7 @@ function keyReleased() {
 }
 
 function keyPressed() {
-    console.log(key)
+    // console.log(key)
     // if (key == 'r') {
     //     socket.emit('resetCollections')
     // }
