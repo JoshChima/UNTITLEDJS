@@ -132,11 +132,11 @@ function draw() {
             text(players[i].username, players[i].x, players[i].y + scl * 3)
             translate(players[i].x, players[i].y);
             rotate(players[i].heading + PI / 2)
-            stroke(255,0,0)
-            fill(255,255,255);
+            stroke(255, 0, 0)
+            fill(255, 255, 255);
             triangle(-scl, scl, scl, scl, 0, -scl);
             pop()
-            
+
 
             // push()
             // //distance between
@@ -175,36 +175,36 @@ function draw() {
             // }
         }
     }
-    _.each(_.filter(projectiles.lasers, function (proj) {
-        let _d = int(dist(ship.pos.x, ship.pos.y, proj.x, proj.y))
-        if (_d < Math.max(width, height) && proj.sid !== ship.id) {
-            return proj
-        }
-    }), function (proj) {
-        let _d = int(dist(ship.pos.x, ship.pos.y, proj.x, proj.y))
-        ship.hit(_d, proj, 'laser')
-        push()
-        stroke(255);
-        strokeWeight(4);
-        // ellipse(lsr.x, lsr.y, 5, 5);
-        point(proj.x, proj.y);
-        pop()
-    })
-    _.each(_.filter(projectiles.beams, function (proj) {
-        let _d = int(dist(ship.pos.x, ship.pos.y, proj.x, proj.y))
-        if (_d < Math.max(width, height) && proj.sid !== ship.id) {
-            return proj
-        }
-    }), function (proj) {
-        let _d = int(dist(ship.pos.x, ship.pos.y, proj.x, proj.y))
-        ship.hit(_d, proj, 'beam')
-        push()
-        fill(255, 0, 0)
-        ellipse(proj.x, proj.y, scl + (scl * .3), scl + (scl * .3));
-        pop()
-    })
 
     if (ship) {
+        _.each(_.filter(projectiles.lasers, function (proj) {
+            let _d = int(dist(ship.pos.x, ship.pos.y, proj.x, proj.y))
+            if (_d < Math.max(width, height) && proj.sid !== ship.id) {
+                return proj
+            }
+        }), function (proj) {
+            let _d = int(dist(ship.pos.x, ship.pos.y, proj.x, proj.y))
+            ship.hit(_d, proj, 'laser')
+            push()
+            stroke(255);
+            strokeWeight(4);
+            // ellipse(lsr.x, lsr.y, 5, 5);
+            point(proj.x, proj.y);
+            pop()
+        })
+        _.each(_.filter(projectiles.beams, function (proj) {
+            let _d = int(dist(ship.pos.x, ship.pos.y, proj.x, proj.y))
+            if (_d < Math.max(width, height) && proj.sid !== ship.id) {
+                return proj
+            }
+        }), function (proj) {
+            let _d = int(dist(ship.pos.x, ship.pos.y, proj.x, proj.y))
+            ship.hit(_d, proj, 'beam')
+            push()
+            fill(255, 0, 0)
+            ellipse(proj.x, proj.y, scl + (scl * .3), scl + (scl * .3));
+            pop()
+        })
         ship.deathCheck();
         // ship.lasers.forEach(lsr => {
         //     if (lsr.active == false) {
