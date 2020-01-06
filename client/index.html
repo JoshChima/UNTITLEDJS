@@ -25,8 +25,8 @@
         <script src="js/controls.js"></script>
         <script src="js/laser.js"></script>
         <script src="js/beam.js"></script>
-        <h4>🚀 Press F to fire | Press B to use beam </h4>
-        <h5 id="position" style="color:rgb(252, 239, 239);"></h5>
+        <h4 style="color:rgb(252, 239, 239);">🚀 Press F to fire | Hold down B to use beam </h4>
+        <h6 id="position" style="color:rgb(252, 239, 239);"></h6>
         <div id="login" class="modal-dialog text-center">
             <div class="col-sm-9 main-section">
                 <div class="modal-content">
@@ -34,6 +34,7 @@
                         <form id="login-form">
                             <div class="form-group">
                                 <input type="text" class="form-control" placeholder="Enter Nickname">
+                                <p id="namealert" style="color:rgb(252, 239, 239);"></p>
                             </div>
                             <button type="button" class="btn btn-success" onclick="newShip()">Login</button>
                         </form>

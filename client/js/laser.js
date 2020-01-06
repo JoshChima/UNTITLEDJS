@@ -1,11 +1,13 @@
 function uuid() {
-    let gUuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    let gUuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0,
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
-      });
+    });
     return gUuid
-  }
-function Laser(id ,x, y, angle) {
+}
+
+function Laser(id, x, y, angle) {
     this.shipID = id
     this.uniqueID = id + '_' + uuid()
 
@@ -15,10 +17,10 @@ function Laser(id ,x, y, angle) {
     this.active = true
     this.lifespan = 255;
 
-    this.update = function() {
+    this.update = function () {
         this.pos.add(this.velocity);
         this.lifespan -= 2;
-        if (this.lifespan<0) {
+        if (this.lifespan < 0) {
             this.active = false
         }
     }
@@ -32,9 +34,9 @@ function Laser(id ,x, y, angle) {
     //     }
     // }
 
-    this.render = function() {
+    this.render = function () {
         push()
-        stroke(148,0,211);
+        stroke('white');
         strokeWeight(3);
         point(this.pos.x, this.pos.y);
         pop()

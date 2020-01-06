@@ -44,7 +44,8 @@ function newShip() {
     yert = document.getElementById("login");
     xert = document.getElementById("login-form");
     username = xert.elements[0].value
-    if (usernames.includes(username) == false) {
+    usernamePattern = new RegExp(username, "i")
+    if (usernamePattern.test(usernames) == false) {
         yert.style.display = "none";
         startX = floor(random(floor(ArenaWidth / scl))) * scl;
         startY = floor(random(floor(ArenaHeight / scl))) * scl;
@@ -52,6 +53,8 @@ function newShip() {
 
         let data = shipData()
         socket.emit('start', JSON.stringify(data));
+    } else {
+        document.getElementById("namealert").innerHTML = `${username} is already in use.`
     }
 }
 
@@ -62,6 +65,9 @@ function setup() {
     socket.on('setId', function (data) {
         id = data.id
     })
+    socket.on('newPlayer', function (data) {
+        usernames = data
+    })
     // console.log(socket.id);
     socket.on('starUpdate', function (dataset) {
         stars = dataset
@@ -71,7 +77,7 @@ function setup() {
         let data = JSON.parse(d);
         // console.log(socket.id)
         // console.log(data);
-        usernames = data.usernames;
+        // usernames = data.usernames;
         players = data.players;
         projectiles.lasers = data.projectiles.lasers;
         projectiles.beams = data.projectiles.beams;

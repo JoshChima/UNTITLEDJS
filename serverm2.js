@@ -7,7 +7,7 @@ const ArenaWidth = 2000
 const ArenaHeight = 2000
 
 var stars = [];
-let players = [];
+let players = "";
 let projectiles = {
     lasers: {},
     beams: {}
@@ -64,7 +64,17 @@ app.use(express.static('client'));
 
 io.sockets.on('connection', function (socket) {
 
+    players += `${socket.id}_`
     console.log(`${socket.id} connected`);
+    let usernameData = "";
+    const nsp = io.of('/');
+    for (let id in io.sockets.sockets) {
+        const socket = nsp.connected[id]
+        if (socket.userData !== undefined) {
+            usernameData += `${socket.userData.username}:`
+        }
+    }
+    io.emit('newPlayer',usernameData)
     socket.emit('setId', {
         id: socket.id
     });
@@ -72,6 +82,24 @@ io.sockets.on('connection', function (socket) {
     io.emit('starUpdate', starset);
 
     socket.on('disconnect', function () {
+        players.replace(`${socket.id}_`, '')
+        let projtls = [...Object.keys(projectiles.lasers), ...Object.keys(projectiles.beams)].join(":").match(new RegExp(`${socket.id}_.*?:`, "g"))
+        // console.log(projtls)
+        for (let key in projtls) {
+            let patt = /:/;
+            if (patt.test(projtls[key])) {
+                projtls[key] = projtls[key].slice(0, -1)
+            }
+            // console.log(projtls[key])
+            if (projectiles.lasers.hasOwnProperty(projtls[key])) {
+                delete projectiles.lasers[projtls[key]]
+            } 
+            else if (projectiles.beams.hasOwnProperty(projtls[key])) {
+                delete projectiles.beams[projtls[key]]
+            }
+        }
+
+
         console.log(`Player ${socket.id} disconnected`);
         delete socket.userData
         socket.broadcast.emit('deletedPlayer', {
@@ -95,7 +123,7 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('update', function (d) {
-        let data = JSON.parse(d); 
+        let data = JSON.parse(d);
         if (socket.userData !== undefined) {
             socket.userData.username = data.username
             socket.userData.x = data.x
@@ -113,12 +141,20 @@ io.sockets.on('connection', function (socket) {
                     projectiles.lasers[laser.lid].y = laser.y
                     projectiles.lasers[laser.lid].active = laser.active
                 }
+                // let patt = new RegExp(projectiles.lasers[laser.lid].sid)
+                // if (patt.test(players) == false) {
+                //     delete projectiles.lasers[laser.lid]
+                // }
             });
             data.beams.forEach(beam => {
                 // if (Object.keys(projectiles.beams).includes(beam.lid)) 
                 if (projectiles.beams[beam.lid] !== undefined) {
                     projectiles.beams[beam.lid].active = beam.active
                 }
+                // let patt = new RegExp(projectiles.beams[beam.lid].sid)
+                // if (patt.test(players) == false) {
+                //     delete projectiles.beams[beam.lid]
+                // }
             });
         }
     });
@@ -209,12 +245,14 @@ function heartBeat() {
             });
         }
     }
+
+    
     // if (pack.projectiles.lasers.length > 0) {
-        //     console.log(pack.projectiles.lasers.length)
-        // }
-        // if (pack.projectiles.beams.length > 0) {
-        //     console.log(pack.projectiles.beams.length)
-        // }
+    //     console.log(pack.projectiles.lasers.length)
+    // }
+    // if (pack.projectiles.beams.length > 0) {
+    //     console.log(pack.projectiles.beams.length)
+    // }
     if (pack.players.length > 0) {
         io.emit('heartbeat', JSON.stringify(pack));
     }

@@ -130,6 +130,12 @@ function Ship(username, id, x, y, scl) {
         fill(255,255,255);
         triangle(-this.r, this.r, this.r, this.r, 0, -this.r);
         pop();
+        // push()
+        // stroke(148,0,211)
+        // noFill()
+        // strokeWeight(1)
+        // ellipse(this.pos.x, this.pos.y, this.r*5, this.r*5);
+        // pop()
     }
 
     this.setRotation = function (a) {
